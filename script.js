@@ -52,15 +52,40 @@ function getRandomHour() {
 
 function setup() {
   var svg = select('#puntos');
-  var html = '';
-  html += createCircle(150, 150, 5);
-  for (var i = 0; i < 60; i++) {
-    var x = 120 * cos(2 * PI * i / 60) + 150;
-    var y = 120 * sin(2 * PI * i / 60) + 150;
-    var r = i % 5 === 0 ? 3 : 1;
-    html += createCircle(x, y, r);
+  var clockSize = 500; // Tamaño inicial del #clock
+  
+  var pointRadius = clockSize * 0.015; // Radio de los puntos en relación al tamaño del #clock
+  var centerX = clockSize / 2;
+  var centerY = clockSize / 2;
+  var html = createCircle(centerX, centerY, pointRadius);
+
+  function updatePoints() {
+    var clockWidth = select('#clock').width;
+    var clockHeight = select('#clock').height;
+    var newClockSize = Math.min(clockWidth, clockHeight);
+
+    // Actualizar valores de tamaño y posición en función del nuevo tamaño del #clock
+    centerX = newClockSize / 2;
+    centerY = newClockSize / 2;
+    pointRadius = newClockSize * 0.005;
+
+    html = createCircle(centerX, centerY, pointRadius);
+
+    for (var i = 0; i < 60; i++) {
+      var angle = map(i, 0, 60, 0, TWO_PI);
+      var x = centerX + newClockSize * 0.4 * cos(angle);
+      var y = centerY + newClockSize * 0.4 * sin(angle);
+      var r = (i % 5 === 0) ? pointRadius * 1.5 : pointRadius;
+      html += createCircle(x, y, r);
+    }
+
+    svg.html(html);
   }
-  svg.html(html);
+
+  updatePoints(); // Llamar a la función para inicializar los puntos
+
+  // Actualizar los puntos cuando se cambie el tamaño de la ventana
+  window.addEventListener('resize', updatePoints);
 }
 
 function createCircle(x, y, r) {
